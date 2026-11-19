@@ -1,2 +1,1 @@
-# AKCDD-Innovation
-AKCDD-Next est une application innovante conçue pour faciliter la communication entre les personnes sourdes, non parlantes et entendantes grâce à la reconnaissance et à l’apprentissage des langues des signes par caméra.
+AKCDD-Innovation est un projet technologique dédié à l’accessibilité et à l’inclusion. L’application vise à faciliter la communication entre les personnes sourdes, les personnes entendantes et celles qui utilisent les langues des signes, grâce à des technologies de vision par ordinateur, de détection des gestes et d’apprentissage personnalisé. Son ambition est de développer des outils intelligents capables de reconnaître les signes et de favoriser des échanges plus accessibles, naturels et inclusifs.
