@@ -1,0 +1,1845 @@
+
+
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AKCDD-Innovation</title>
+
+<script type="importmap">
+
+{
+
+  "imports": {
+
+    "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm"
+
+  }
+
+}
+
+</script>
+
+<style>
+
+* {
+
+  box-sizing: border-box;
+
+}
+
+body {
+
+  margin: 0;
+
+  padding: 22px 14px;
+
+  font-family: Arial, sans-serif;
+
+  background: #f4f1ea;
+
+  color: #222;
+
+  text-align: center;
+
+}
+
+header {
+
+  margin-bottom: 25px;
+
+}
+
+.logo {
+
+  font-size: 32px;
+
+  font-weight: bold;
+
+  letter-spacing: 4px;
+
+  color: #8a6d3b;
+
+}
+
+.slogan {
+
+  color: #777;
+
+  font-size: 14px;
+
+}
+
+h2 {
+
+  color: #8a6d3b;
+
+}
+
+.section {
+
+  max-width: 520px;
+
+  margin: 20px auto;
+
+  padding: 19px;
+
+  background: white;
+
+  border-radius: 15px;
+
+  box-shadow: 0 3px 12px #0000000d;
+
+}
+
+select,
+
+input {
+
+  display: block;
+
+  width: 100%;
+
+  max-width: 420px;
+
+  margin: 10px auto 16px;
+
+  padding: 13px;
+
+  border: 1px solid #c2a46b;
+
+  border-radius: 9px;
+
+  background: white;
+
+  font-size: 15px;
+
+}
+
+button {
+
+  padding: 12px 17px;
+
+  margin: 6px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background: #8a6d3b;
+
+  color: white;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+}
+
+button:disabled {
+
+  opacity: .45;
+
+  cursor: not-allowed;
+
+}
+
+button.secondary {
+
+  background: #555;
+
+}
+
+button.danger {
+
+  background: #a33d35;
+
+}
+
+#cadre-camera {
+
+  display: none;
+
+  position: relative;
+
+  width: 100%;
+
+  max-width: 420px;
+
+  margin: 18px auto;
+
+  overflow: hidden;
+
+  background: #222;
+
+  border-radius: 14px;
+
+}
+
+#video-camera {
+
+  display: block;
+
+  width: 100%;
+
+  height: auto;
+
+  transform: scaleX(-1);
+
+}
+
+#canvas-camera {
+
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  transform: scaleX(-1);
+
+  pointer-events: none;
+
+}
+
+.status {
+
+  color: #8a6d3b;
+
+  font-size: 14px;
+
+  font-weight: bold;
+
+  line-height: 1.5;
+
+}
+
+.note {
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+
+}
+
+#zone-traduction {
+
+  min-height: 75px;
+
+  padding: 17px;
+
+  border: 1px solid #c2a46b;
+
+  border-radius: 12px;
+
+  background: #fffdf8;
+
+  line-height: 1.6;
+
+  font-size: 19px;
+
+  font-weight: bold;
+
+}
+
+#progression {
+
+  height: 10px;
+
+  max-width: 400px;
+
+  margin: 12px auto;
+
+  background: #eee;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+}
+
+#barre {
+
+  height: 100%;
+
+  width: 0%;
+
+  background: #8a6d3b;
+
+  transition: width .1s;
+
+}
+
+#liste-signes {
+
+  text-align: left;
+
+  line-height: 1.9;
+
+  padding-left: 25px;
+
+}
+
+footer {
+
+  margin-top: 35px;
+
+  padding: 20px;
+
+  color: #8a6d3b;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="logo">AKCDD</div>
+
+  <p class="slogan">La communication nous rapproche.</p>
+
+  <p><strong>INNOVATION</strong></p>
+
+</header>
+
+<section class="section">
+
+  <h2>Bienvenue sur AKCDD</h2>
+
+  <p>
+
+    Une application conçue pour faciliter la communication
+
+    entre les personnes entendantes et les personnes qui
+
+    utilisent les langues des signes.
+
+  </p>
+
+  <h2>Langue de l'application</h2>
+
+  <select id="choix-interface">
+
+    <option value="fr">🇫🇷 Français</option>
+
+    <option value="en">🇬🇧 English</option>
+
+    <option value="es">🇪🇸 Español</option>
+
+    <option value="de">🇩🇪 Deutsch</option>
+
+    <option value="ar">🌍 العربية</option>
+
+    <option value="zh">🇨🇳 中文</option>
+
+    <option value="pt">🇵🇹 Português</option>
+
+  </select>
+
+  <h2>Langue des signes</h2>
+
+  <select id="choix-signes">
+
+    <option value="LSQ">🇨🇦 Langue des signes québécoise (LSQ)</option>
+
+    <option value="LSF">🇫🇷 Langue des signes française (LSF)</option>
+
+    <option value="ASL">🇺🇸 American Sign Language (ASL)</option>
+
+    <option value="LSE">🇪🇸 Lengua de Signos Española (LSE)</option>
+
+    <option value="DGS">🇩🇪 Deutsche Gebärdensprache (DGS)</option>
+
+    <option value="ARSL">🌍 Langues des signes arabes</option>
+
+    <option value="CSL">🇨🇳 Chinese Sign Language (CSL)</option>
+
+    <option value="LGP">🇵🇹 Língua Gestual Portuguesa (LGP)</option>
+
+  </select>
+
+  <p class="note" id="langue-selectionnee">
+
+    Langue sélectionnée : Langue des signes québécoise
+
+  </p>
+
+</section>
+
+<section class="section">
+
+  <h2>Caméra intelligente</h2>
+
+  <p>
+
+    Place ton visage et tes deux mains dans le champ
+
+    de la caméra.
+
+  </p>
+
+  <button id="ouvrir-camera">Ouvrir la caméra</button>
+
+  <button id="fermer-camera" class="secondary" disabled>
+
+    Fermer la caméra
+
+  </button>
+
+  <div id="cadre-camera">
+
+    <video id="video-camera" autoplay playsinline muted></video>
+
+    <canvas id="canvas-camera"></canvas>
+
+  </div>
+
+  <p class="status" id="statut-camera">
+
+    Caméra inactive.
+
+  </p>
+
+  <p class="status" id="statut-detection">
+
+    En attente de détection.
+
+  </p>
+
+</section>
+
+<section class="section">
+
+  <h2>Entraîner AKCDD</h2>
+
+  <p>
+
+    Apprends à ton application un nouveau signe.
+
+    Écris sa signification, puis montre-le devant la caméra.
+
+  </p>
+
+  <input
+
+    id="nom-signe"
+
+    type="text"
+
+    placeholder="Exemple : Bonjour"
+
+    maxlength="40"
+
+  >
+
+  <button id="enregistrer-signe" disabled>
+
+    Apprendre ce signe
+
+  </button>
+
+  <div id="progression">
+
+    <div id="barre"></div>
+
+  </div>
+
+  <p class="status" id="statut-entrainement">
+
+    En attente de ton premier entraînement.
+
+  </p>
+
+  <p class="note">
+
+    Enregistre plusieurs exemples de chaque signe,
+
+    en répétant le mouvement de différentes façons.
+
+  </p>
+
+  <button id="effacer-signes" class="danger">
+
+    Effacer les exemples enregistrés
+
+  </button>
+
+</section>
+
+<section class="section">
+
+  <h2>Reconnaissance des signes</h2>
+
+  <button id="demarrer-reconnaissance" disabled>
+
+    Commencer la reconnaissance
+
+  </button>
+
+  <button id="arreter-reconnaissance" class="secondary" disabled>
+
+    Arrêter la reconnaissance
+
+  </button>
+
+  <div id="zone-traduction">
+
+    En attente d'un signe...
+
+  </div>
+
+  <p class="status" id="statut-reconnaissance">
+
+    Entraîne d'abord ton application.
+
+  </p>
+
+</section>
+
+<section class="section">
+
+  <h2>Mes signes appris</h2>
+
+  <p class="note">
+
+    Voici les signes que tu as appris à AKCDD.
+
+  </p>
+
+  <ul id="liste-signes">
+
+    <li>Aucun signe enregistré.</li>
+
+  </ul>
+
+</section>
+
+<footer>
+
+  <strong>AKCDD-INNOVATION</strong>
+
+  <p>La communication nous rapproche.</p>
+
+  <small>Projet de reconnaissance des langues des signes</small>
+
+</footer>
+
+<script type="module">
+
+import {
+
+  FilesetResolver,
+
+  HandLandmarker,
+
+  FaceLandmarker
+
+} from "@mediapipe/tasks-vision";
+
+// ELEMENTS
+
+const $ = id => document.getElementById(id);
+
+const video = $("video-camera");
+
+const canvas = $("canvas-camera");
+
+const ctx = canvas.getContext("2d");
+
+const cadre = $("cadre-camera");
+
+const boutonOuvrir = $("ouvrir-camera");
+
+const boutonFermer = $("fermer-camera");
+
+const boutonEnregistrer = $("enregistrer-signe");
+
+const boutonReconnaissance = $("demarrer-reconnaissance");
+
+const boutonArreter = $("arreter-reconnaissance");
+
+const statutCamera = $("statut-camera");
+
+const statutDetection = $("statut-detection");
+
+const statutEntrainement = $("statut-entrainement");
+
+const statutReconnaissance = $("statut-reconnaissance");
+
+const zoneTraduction = $("zone-traduction");
+
+const nomSigne = $("nom-signe");
+
+const choixSignes = $("choix-signes");
+
+const barre = $("barre");
+
+// CONFIGURATION
+
+const STORAGE_KEY = "AKCDD_INNOVATION_SIGNES_V1";
+
+const NOMBRE_IMAGES = 12;
+
+const INTERVALLE_CAPTURE = 120;
+
+const MAX_EXEMPLES = 500;
+
+let fluxCamera = null;
+
+let detecteurMains = null;
+
+let detecteurVisage = null;
+
+let animation = null;
+
+let cameraActive = false;
+
+let chargement = false;
+
+let modeEntrainement = false;
+
+let modeReconnaissance = false;
+
+let imagesEntrainement = [];
+
+let derniereSequence = [];
+
+let dernierTempsCapture = 0;
+
+let dernierTempsDetection = -1;
+
+let dernierSigneAffiche = "";
+
+let dernierTempsAffichage = 0;
+
+let exemples = chargerDonnees();
+
+const langues = {
+
+  LSQ: "Langue des signes québécoise",
+
+  LSF: "Langue des signes française",
+
+  ASL: "American Sign Language",
+
+  LSE: "Lengua de Signos Española",
+
+  DGS: "Deutsche Gebärdensprache",
+
+  ARSL: "Langues des signes arabes",
+
+  CSL: "Chinese Sign Language",
+
+  LGP: "Língua Gestual Portuguesa"
+
+};
+
+// STOCKAGE LOCAL
+
+function chargerDonnees() {
+
+  try {
+
+    const donnees = JSON.parse(
+
+      localStorage.getItem(STORAGE_KEY) || "[]"
+
+    );
+
+    return Array.isArray(donnees) ? donnees : [];
+
+  } catch (erreur) {
+
+    console.error(erreur);
+
+    return [];
+
+  }
+
+}
+
+function sauvegarderDonnees() {
+
+  try {
+
+    localStorage.setItem(
+
+      STORAGE_KEY,
+
+      JSON.stringify(exemples)
+
+    );
+
+    return true;
+
+  } catch (erreur) {
+
+    console.error(erreur);
+
+    statutEntrainement.textContent =
+
+      "Stockage insuffisant. Essaie avec moins d'exemples.";
+
+    return false;
+
+  }
+
+}
+
+// LANGUE DES SIGNES
+
+function langueActuelle() {
+
+  return choixSignes.value;
+
+}
+
+function actualiserLangue() {
+
+  $("langue-selectionnee").textContent =
+
+    "Langue sélectionnée : " + langues[langueActuelle()];
+
+  actualiserListe();
+
+}
+
+choixSignes.addEventListener("change", () => {
+
+  actualiserLangue();
+
+  dernierSigneAffiche = "";
+
+  derniereSequence = [];
+
+  zoneTraduction.textContent =
+
+    "En attente d'un signe...";
+
+});
+
+$("choix-interface").addEventListener("change", event => {
+
+  const langue = event.target.value;
+
+  document.documentElement.lang = langue;
+
+  document.body.dir =
+
+    langue === "ar" ? "rtl" : "ltr";
+
+});
+
+// CONNEXIONS DES DOIGTS
+
+const connexions = [
+
+  [0,1],[1,2],[2,3],[3,4],
+
+  [0,5],[5,6],[6,7],[7,8],
+
+  [5,9],[9,10],[10,11],[11,12],
+
+  [9,13],[13,14],[14,15],[15,16],
+
+  [13,17],[17,18],[18,19],[19,20],
+
+  [0,17]
+
+];
+
+// CHARGEMENT DES MODELES
+
+async function chargerModeles() {
+
+  if (detecteurMains && detecteurVisage) return;
+
+  statutCamera.textContent =
+
+    "Chargement du système de reconnaissance...";
+
+  const vision = await FilesetResolver.forVisionTasks(
+
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+
+  );
+
+  detecteurMains = await HandLandmarker.createFromOptions(
+
+    vision,
+
+    {
+
+      baseOptions: {
+
+        modelAssetPath:
+
+          "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+
+        delegate: "CPU"
+
+      },
+
+      runningMode: "VIDEO",
+
+      numHands: 2
+
+    }
+
+  );
+
+  detecteurVisage = await FaceLandmarker.createFromOptions(
+
+    vision,
+
+    {
+
+      baseOptions: {
+
+        modelAssetPath:
+
+          "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+
+        delegate: "CPU"
+
+      },
+
+      runningMode: "VIDEO",
+
+      numFaces: 1
+
+    }
+
+  );
+
+}
+
+// OUVERTURE DE LA CAMERA
+
+async function ouvrirCamera() {
+
+  if (cameraActive || chargement) return;
+
+  chargement = true;
+
+  boutonOuvrir.disabled = true;
+
+  statutCamera.textContent =
+
+    "Demande d'autorisation de la caméra...";
+
+  try {
+
+    if (
+
+      !navigator.mediaDevices ||
+
+      !navigator.mediaDevices.getUserMedia
+
+    ) {
+
+      throw new Error(
+
+        "La caméra nécessite une connexion HTTPS."
+
+      );
+
+    }
+
+    fluxCamera =
+
+      await navigator.mediaDevices.getUserMedia({
+
+        audio: false,
+
+        video: {
+
+          facingMode: "user",
+
+          width: { ideal: 640 },
+
+          height: { ideal: 480 }
+
+        }
+
+      });
+
+    video.srcObject = fluxCamera;
+
+    await video.play();
+
+    if (!video.videoWidth) {
+
+      await new Promise((resolve, reject) => {
+
+        video.onloadedmetadata = resolve;
+
+        video.onerror = () =>
+
+          reject(new Error("Vidéo indisponible."));
+
+      });
+
+    }
+
+    canvas.width = video.videoWidth;
+
+    canvas.height = video.videoHeight;
+
+    cadre.style.display = "block";
+
+    cameraActive = true;
+
+    boutonFermer.disabled = false;
+
+    await chargerModeles();
+
+    if (!cameraActive) return;
+
+    boutonEnregistrer.disabled = false;
+
+    boutonReconnaissance.disabled = false;
+
+    statutCamera.textContent =
+
+      "Caméra et modèles activés.";
+
+    statutDetection.textContent =
+
+      "Place ton visage et tes mains devant la caméra.";
+
+    dernierTempsDetection = -1;
+
+    animation = requestAnimationFrame(boucleCamera);
+
+  } catch (erreur) {
+
+    console.error("Erreur caméra :", erreur);
+
+    const messages = {
+
+      NotAllowedError:
+
+        "Autorise la caméra dans les réglages de Safari.",
+
+      NotFoundError:
+
+        "Aucune caméra disponible.",
+
+      NotReadableError:
+
+        "La caméra est peut-être utilisée par une autre application.",
+
+      SecurityError:
+
+        "La caméra nécessite une connexion HTTPS."
+
+    };
+
+    statutCamera.textContent =
+
+      messages[erreur.name] ||
+
+      erreur.message ||
+
+      "Impossible d'ouvrir la caméra.";
+
+    arreterFlux();
+
+  } finally {
+
+    chargement = false;
+
+  }
+
+}
+
+// EXTRACTION DES POINTS
+
+function normaliserPoint(point, origine, echelle) {
+
+  if (!point || !origine) {
+
+    return [0, 0, 0];
+
+  }
+
+  return [
+
+    (point.x - origine.x) / echelle,
+
+    (point.y - origine.y) / echelle,
+
+    (point.z - origine.z) / echelle
+
+  ];
+
+}
+
+function extraireMain(resultat, cote) {
+
+  const mains = resultat.landmarks || [];
+
+  const etiquettes = resultat.handedness || [];
+
+  let index = -1;
+
+  for (let i = 0; i < etiquettes.length; i++) {
+
+    const categorie =
+
+      etiquettes[i]?.[0]?.categoryName;
+
+    if (categorie === cote) {
+
+      index = i;
+
+      break;
+
+    }
+
+  }
+
+  if (index < 0 || !mains[index]) {
+
+    return Array(63).fill(0);
+
+  }
+
+  const points = mains[index];
+
+  const origine = points[0];
+
+  const echelle = Math.max(
+
+    Math.hypot(
+
+      points[5].x - points[17].x,
+
+      points[5].y - points[17].y
+
+    ),
+
+    0.0001
+
+  );
+
+  return points.flatMap(point =>
+
+    normaliserPoint(point, origine, echelle)
+
+  );
+
+}
+
+// POINTS DU VISAGE
+
+const pointsVisage = [
+
+  1, 10, 152, 33, 133, 159, 145,
+
+  362, 263, 386, 374, 61, 291, 13,
+
+  14, 70, 300, 105, 334, 234, 454, 4
+
+];
+
+function extraireVisage(resultat) {
+
+  const visage = resultat.faceLandmarks?.[0];
+
+  if (!visage) {
+
+    return Array(pointsVisage.length * 3).fill(0);
+
+  }
+
+  const origine = visage[1];
+
+  const largeur = Math.max(
+
+    Math.hypot(
+
+      visage[234].x - visage[454].x,
+
+      visage[234].y - visage[454].y
+
+    ),
+
+    0.0001
+
+  );
+
+  return pointsVisage.flatMap(index =>
+
+    normaliserPoint(visage[index], origine, largeur)
+
+  );
+
+}
+
+// CREER LES CARACTERISTIQUES
+
+function extraireCaracteristiques(mains, visage) {
+
+  return [
+
+    ...extraireMain(mains, "Left"),
+
+    ...extraireMain(mains, "Right"),
+
+    ...extraireVisage(visage)
+
+  ];
+
+}
+
+// AFFICHER LES MAINS
+
+function dessinerMains(resultat) {
+
+  ctx.clearRect(
+
+    0,
+
+    0,
+
+    canvas.width,
+
+    canvas.height
+
+  );
+
+  for (const points of resultat.landmarks || []) {
+
+    ctx.strokeStyle = "#d4af37";
+
+    ctx.lineWidth = 4;
+
+    for (const liaison of connexions) {
+
+      const a = points[liaison[0]];
+
+      const b = points[liaison[1]];
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+
+        a.x * canvas.width,
+
+        a.y * canvas.height
+
+      );
+
+      ctx.lineTo(
+
+        b.x * canvas.width,
+
+        b.y * canvas.height
+
+      );
+
+      ctx.stroke();
+
+    }
+
+    for (const point of points) {
+
+      ctx.beginPath();
+
+      ctx.arc(
+
+        point.x * canvas.width,
+
+        point.y * canvas.height,
+
+        4,
+
+        0,
+
+        Math.PI * 2
+
+      );
+
+      ctx.fillStyle = "#ffffff";
+
+      ctx.fill();
+
+    }
+
+  }
+
+}
+
+// BOUCLE CAMERA
+
+function boucleCamera() {
+
+  if (!cameraActive) return;
+
+  try {
+
+    if (
+
+      video.readyState >= 2 &&
+
+      video.currentTime !== dernierTempsDetection
+
+    ) {
+
+      dernierTempsDetection = video.currentTime;
+
+      const maintenant = performance.now();
+
+      const resultatMains =
+
+        detecteurMains.detectForVideo(
+
+          video,
+
+          maintenant
+
+        );
+
+      const resultatVisage =
+
+        detecteurVisage.detectForVideo(
+
+          video,
+
+          maintenant
+
+        );
+
+      dessinerMains(resultatMains);
+
+      const nombreMains =
+
+        resultatMains.landmarks?.length || 0;
+
+      const visageDetecte =
+
+        (resultatVisage.faceLandmarks?.length || 0) > 0;
+
+      statutDetection.textContent =
+
+        nombreMains +
+
+        (nombreMains > 1
+
+          ? " mains détectées"
+
+          : " main détectée") +
+
+        (visageDetecte
+
+          ? " — visage détecté."
+
+          : " — visage non détecté.");
+
+      if (maintenant - dernierTempsCapture >= INTERVALLE_CAPTURE) {
+
+        dernierTempsCapture = maintenant;
+
+        const caracteristiques =
+
+          extraireCaracteristiques(
+
+            resultatMains,
+
+            resultatVisage
+
+          );
+
+        if (modeEntrainement) {
+
+          enregistrerImage(caracteristiques);
+
+        }
+
+        if (modeReconnaissance) {
+
+          reconnaitreImage(caracteristiques);
+
+        }
+
+      }
+
+    }
+
+  } catch (erreur) {
+
+    console.error("Erreur de détection :", erreur);
+
+    statutDetection.textContent =
+
+      "Erreur pendant la détection.";
+
+  }
+
+  if (cameraActive) {
+
+    animation = requestAnimationFrame(boucleCamera);
+
+  }
+
+}
+
+// ENTRAINEMENT
+
+function enregistrerImage(caracteristiques) {
+
+  imagesEntrainement.push(caracteristiques);
+
+  const progression =
+
+    imagesEntrainement.length / NOMBRE_IMAGES * 100;
+
+  barre.style.width = progression + "%";
+
+  statutEntrainement.textContent =
+
+    "Apprentissage : " +
+
+    imagesEntrainement.length +
+
+    " / " + NOMBRE_IMAGES;
+
+  if (imagesEntrainement.length >= NOMBRE_IMAGES) {
+
+    terminerEnregistrement();
+
+  }
+
+}
+
+function terminerEnregistrement() {
+
+  modeEntrainement = false;
+
+  const nom = nomSigne.value.trim();
+
+  if (
+
+    !nom ||
+
+    imagesEntrainement.length !== NOMBRE_IMAGES
+
+  ) {
+
+    statutEntrainement.textContent =
+
+      "Enregistrement incomplet. Réessaie.";
+
+    return;
+
+  }
+
+  if (exemples.length >= MAX_EXEMPLES) {
+
+    statutEntrainement.textContent =
+
+      "Limite d'exemples atteinte.";
+
+    return;
+
+  }
+
+  const nouvelExemple = {
+
+    langue: langueActuelle(),
+
+    nom: nom,
+
+    sequence: imagesEntrainement,
+
+    date: new Date().toISOString()
+
+  };
+
+  exemples.push(nouvelExemple);
+
+  if (sauvegarderDonnees()) {
+
+    statutEntrainement.textContent =
+
+      "Le signe « " + nom + " » a été appris !";
+
+    actualiserListe();
+
+  } else {
+
+    exemples.pop();
+
+  }
+
+  imagesEntrainement = [];
+
+  barre.style.width = "0%";
+
+}
+
+boutonEnregistrer.addEventListener("click", () => {
+
+  if (!cameraActive || modeEntrainement) return;
+
+  const nom = nomSigne.value.trim();
+
+  if (!nom) {
+
+    statutEntrainement.textContent =
+
+      "Écris d'abord le nom du signe.";
+
+    nomSigne.focus();
+
+    return;
+
+  }
+
+  modeReconnaissance = false;
+
+  derniereSequence = [];
+
+  imagesEntrainement = [];
+
+  modeEntrainement = true;
+
+  barre.style.width = "0%";
+
+  statutEntrainement.textContent =
+
+    "Montre maintenant le signe : " + nom;
+
+});
+
+// COMPARAISON DES SEQUENCES
+
+function distanceSequence(a, b) {
+
+  if (
+
+    !a ||
+
+    !b ||
+
+    a.length !== b.length
+
+  ) {
+
+    return Infinity;
+
+  }
+
+  let somme = 0;
+
+  let nombre = 0;
+
+  for (let i = 0; i < a.length; i++) {
+
+    for (let j = 0; j < a[i].length; j++) {
+
+      somme += Math.abs(a[i][j] - b[i][j]);
+
+      nombre++;
+
+    }
+
+  }
+
+  return nombre ? somme / nombre : Infinity;
+
+}
+
+// RECONNAISSANCE
+
+function reconnaitreImage(caracteristiques) {
+
+  derniereSequence.push(caracteristiques);
+
+  if (derniereSequence.length > NOMBRE_IMAGES) {
+
+    derniereSequence.shift();
+
+  }
+
+  if (derniereSequence.length < NOMBRE_IMAGES) {
+
+    statutReconnaissance.textContent =
+
+      "Analyse des mouvements : " +
+
+      derniereSequence.length +
+
+      " / " + NOMBRE_IMAGES;
+
+    return;
+
+  }
+
+  const disponibles = exemples.filter(
+
+    exemple => exemple.langue === langueActuelle()
+
+  );
+
+  if (disponibles.length === 0) {
+
+    statutReconnaissance.textContent =
+
+      "Aucun exemple appris pour cette langue.";
+
+    return;
+
+  }
+
+  let meilleur = null;
+
+  let meilleureDistance = Infinity;
+
+  for (const exemple of disponibles) {
+
+    const distance = distanceSequence(
+
+      derniereSequence,
+
+      exemple.sequence
+
+    );
+
+    if (distance < meilleureDistance) {
+
+      meilleureDistance = distance;
+
+      meilleur = exemple;
+
+    }
+
+  }
+
+  if (meilleur && meilleureDistance < 0.35) {
+
+    const maintenant = Date.now();
+
+    if (
+
+      meilleur.nom !== dernierSigneAffiche ||
+
+      maintenant - dernierTempsAffichage > 2500
+
+    ) {
+
+      zoneTraduction.textContent = meilleur.nom;
+
+      dernierSigneAffiche = meilleur.nom;
+
+      dernierTempsAffichage = maintenant;
+
+    }
+
+    statutReconnaissance.textContent =
+
+      "Correspondance avec un signe appris. Distance : " +
+
+      meilleureDistance.toFixed(3);
+
+  } else {
+
+    zoneTraduction.textContent =
+
+      "Signe non reconnu.";
+
+    statutReconnaissance.textContent =
+
+      "Aucun exemple suffisamment proche.";
+
+    dernierSigneAffiche = "";
+
+  }
+
+}
+
+// DEMARRER LA RECONNAISSANCE
+
+boutonReconnaissance.addEventListener("click", () => {
+
+  if (!cameraActive) return;
+
+  const disponibles = exemples.filter(
+
+    exemple => exemple.langue === langueActuelle()
+
+  );
+
+  if (disponibles.length === 0) {
+
+    statutReconnaissance.textContent =
+
+      "Enregistre d'abord des exemples pour cette langue.";
+
+    return;
+
+  }
+
+  modeEntrainement = false;
+
+  modeReconnaissance = true;
+
+  derniereSequence = [];
+
+  dernierSigneAffiche = "";
+
+  zoneTraduction.textContent =
+
+    "Montre un signe...";
+
+  statutReconnaissance.textContent =
+
+    "Reconnaissance activée.";
+
+  boutonArreter.disabled = false;
+
+});
+
+// ARRETER LA RECONNAISSANCE
+
+boutonArreter.addEventListener("click", () => {
+
+  modeReconnaissance = false;
+
+  derniereSequence = [];
+
+  boutonArreter.disabled = true;
+
+  statutReconnaissance.textContent =
+
+    "Reconnaissance arrêtée.";
+
+  zoneTraduction.textContent =
+
+    "En attente d'un signe...";
+
+});
+
+// AFFICHER LES SIGNES APPRIS
+
+function actualiserListe() {
+
+  const liste = $("liste-signes");
+
+  liste.innerHTML = "";
+
+  const groupes = {};
+
+  exemples
+
+    .filter(
+
+      exemple => exemple.langue === langueActuelle()
+
+    )
+
+    .forEach(exemple => {
+
+      groupes[exemple.nom] =
+
+        (groupes[exemple.nom] || 0) + 1;
+
+    });
+
+  const noms = Object.keys(groupes);
+
+  if (noms.length === 0) {
+
+    const item = document.createElement("li");
+
+    item.textContent = "Aucun signe enregistré.";
+
+    liste.appendChild(item);
+
+    return;
+
+  }
+
+  for (const nom of noms) {
+
+    const item = document.createElement("li");
+
+    item.textContent =
+
+      nom + " — " + groupes[nom] + " exemple(s)";
+
+    liste.appendChild(item);
+
+  }
+
+}
+
+// EFFACER LES EXEMPLES
+
+$("effacer-signes").addEventListener("click", () => {
+
+  const confirmation = confirm(
+
+    "Veux-tu vraiment effacer tous les exemples enregistrés ?"
+
+  );
+
+  if (!confirmation) return;
+
+  exemples = [];
+
+  sauvegarderDonnees();
+
+  actualiserListe();
+
+  derniereSequence = [];
+
+  zoneTraduction.textContent =
+
+    "En attente d'un signe...";
+
+  statutEntrainement.textContent =
+
+    "Données effacées.";
+
+  statutReconnaissance.textContent =
+
+    "Aucun exemple appris.";
+
+});
+
+// FERMER LA CAMERA
+
+function arreterFlux() {
+
+  cameraActive = false;
+
+  if (animation !== null) {
+
+    cancelAnimationFrame(animation);
+
+    animation = null;
+
+  }
+
+  if (fluxCamera) {
+
+    fluxCamera.getTracks().forEach(
+
+      piste => piste.stop()
+
+    );
+
+    fluxCamera = null;
+
+  }
+
+  video.srcObject = null;
+
+  ctx.clearRect(
+
+    0,
+
+    0,
+
+    canvas.width,
+
+    canvas.height
+
+  );
+
+  cadre.style.display = "none";
+
+  boutonOuvrir.disabled = false;
+
+  boutonFermer.disabled = true;
+
+  boutonEnregistrer.disabled = true;
+
+  boutonReconnaissance.disabled = true;
+
+  boutonArreter.disabled = true;
+
+  modeEntrainement = false;
+
+  modeReconnaissance = false;
+
+  imagesEntrainement = [];
+
+  derniereSequence = [];
+
+}
+
+function fermerCamera() {
+
+  arreterFlux();
+
+  statutCamera.textContent = "Caméra fermée.";
+
+  statutDetection.textContent =
+
+    "Aucune détection.";
+
+  statutEntrainement.textContent =
+
+    "Aucun enregistrement en cours.";
+
+  statutReconnaissance.textContent =
+
+    "Reconnaissance arrêtée.";
+
+  zoneTraduction.textContent =
+
+    "En attente d'un signe...";
+
+  barre.style.width = "0%";
+
+}
+
+// BOUTONS
+
+boutonOuvrir.addEventListener(
+
+  "click",
+
+  ouvrirCamera
+
+);
+
+boutonFermer.addEventListener(
+
+  "click",
+
+  fermerCamera
+
+);
+
+// INITIALISATION
+
+actualiserLangue();
+
+actualiserListe();
+
+boutonArreter.disabled = true;
+
+</script>
+
+</body>
+
+</html>
